@@ -1,0 +1,40 @@
+#! /usr/bin/env python3
+import os
+import sys
+from argparse import ArgumentParser
+import json
+import subprocess as subp
+import boto3
+boto3.compat.filter_python_deprecation_warnings()
+
+credentials = {
+    'endpoint_url': os.getenv('S3_URL'),
+    'access_key': os.getenv('S3_ACCESS'),
+    'secret_key': os.getenv('S3_SECRET')
+}
+
+def main():
+    parser = ArgumentParser(description='Creates a bucket')
+    parser.add_argument('--bucket-name',
+                        dest='bucket_name',
+                        action='store',
+                        required=True,
+                        help='the name of the bucket to create')
+    args = parser.parse_args()
+
+    s3 = boto3.resource('s3',
+                        endpoint_url=credentials['endpoint_url'],
+                        aws_access_key_id=credentials['access_key'],
+                        aws_secret_access_key=credentials['secret_key'],
+                        verify=False, use_ssl=False)
+
+    bucket = s3.Bucket(args.bucket_name)
+    if bucket.creation_date:
+        print("Objects in bucket " + args.bucket_name)
+        for obj in bucket.objects.all():
+            print(obj.key)
+    else:
+        print("Bucket " + args.bucket_name + " does not exist")
+
+if __name__ == '__main__':
+    main()

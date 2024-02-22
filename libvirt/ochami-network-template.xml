@@ -1,0 +1,17 @@
+<network xmlns:dnsmasq='http://libvirt.org/schemas/network/dnsmasq/1.0' connections='2'>
+  <name>@@@VM_NET_NAME@@@</name>
+  <forward mode='open'/>
+  <bridge name='virbr0' stp='on' delay='0'/>
+  <mac address='@@@VM_NET_MAC@@@'/>
+  <ip address='10.1.0.1' netmask='255.255.255.0'>
+    <dhcp>
+      <range start='10.1.0.2' end='10.1.0.254'/>
+      <host mac='@@@VM_MAC@@@' name='@@@VM_NAME@@@' ip='10.1.0.2'/>
+    </dhcp>
+  </ip>
+  <dnsmasq:options>
+    <dnsmasq:option value='dhcp-vendorclass=set:efi-http,HTTPClient:Arch:00016'/>
+    <dnsmasq:option value='dhcp-option-force=tag:efi-http,60,HTTPClient'/>
+    <dnsmasq:option value='dhcp-boot=tag:efi-http,&quot;http://@@@DUMMY_IP@@@:9000/efi/BOOTX64.EFI&quot;'/>
+  </dnsmasq:options>
+</network>

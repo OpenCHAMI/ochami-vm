@@ -1,0 +1,39 @@
+<domain type="kvm">
+  <name>ochami-vm</name>
+  <uuid>8b78362b-f162-49bc-a674-4e0a09ec6e1a</uuid>
+  <memory>MEMORY</memory>
+  <vcpu>CPUS</vcpu>
+  <os>
+    <type arch="x86_64" machine="q35">hvm</type>
+    <loader readonly="yes" type="pflash" secure="yes">/usr/share/OVMF/OVMF_CODE.secboot.fd</loader>
+    <boot dev="network"/>
+  </os>
+  <features>
+    <acpi/>
+    <apic/>
+    <smm state="on"/>
+  </features>
+  <cpu mode="host-model"/>
+  <clock offset="utc">
+    <timer name="rtc" tickpolicy="catchup"/>
+    <timer name="pit" tickpolicy="delay"/>
+    <timer name="hpet" present="no"/>
+  </clock>
+  <pm>
+    <suspend-to-mem enabled="no"/>
+    <suspend-to-disk enabled="no"/>
+  </pm>
+  <devices>
+    <emulator>/usr/libexec/qemu-kvm</emulator>
+    <interface type="network">
+      <source network="default"/>
+      <mac address="MAC"/>
+      <model type="virtio"/>
+    </interface>
+    <interface type='bridge'>
+      <source bridge="BRIDGE"/>
+      <model type="virtio"/>
+    </interface>
+    <console type="pty"/>
+  </devices>
+</domain>
