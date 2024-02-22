@@ -1,7 +1,8 @@
 # ochami-vm
 This VM only runs on a linux host at the moment, specifically on a RHEL8 flavor of linux
 ## Prerequisites
-These are required if you would like to run the ochami services in VM. The next few steps set up the environment for the VM to boot and run
+These are required if you would like to run the ochami services in VM.  
+The next few steps set up the environment for the VM to boot and run
 
 ### Install Packages
 ```bash
@@ -15,7 +16,7 @@ dnf install \
 
 
 ### Create local service containers
-You can skip these steps if you have an existing s3 and/or cloud-init instances running
+You can skip these steps if you have an existing s3 and/or cloud-init instances running.
 
 #### create dummy interface
 We create a dummy interface to attach our local service containers to.
@@ -26,7 +27,7 @@ export DUMMY_MASK=24
 ```
 
 #### start minio
-Start a local s3 instance using minio
+Start a local s3 instance using minio.  
 You can change the minio user, passwd, and storage location
 ```bash
 export MINIO_USER="admin"
@@ -36,12 +37,12 @@ export MINIO_DIR="/data/minio"
 ```
 
 #### start simple cloud init server
-Start a local cloud init instance
+Start a local cloud init instance.  
 ```bash
 export CI_DATA="/data/cloud-init/"
 ./containers/simple-cloud-init/cloud-init-start.sh
 ```
-You can add cloud-init configs to the `CI_DATA` directory and point to `http://$DUMMY_IP/cloud-init/` for the cloud-init clients
+You can add cloud-init configs to the `CI_DATA` directory and point to `http://$DUMMY_IP/cloud-init/` for the cloud-init clients.  
 See examples in the `examples/cloud-init`
 
 ## VM booting
@@ -57,10 +58,10 @@ s3-list --bucket-name boot-images
 You should now have at least one image and kernel and initramfs
 
 ### Get EFI boot binaries
-We are going to boot the VM via the network using grub
-You'll need two things pushed to s3 to make this work: `BOOTX64.EFI` and `grubx64.efi `
-These are provided by two packages: `grub2-efi-x64` and `shim-x64`
-The locations of these on Rocky8 are in `/boot/efi/EFI/BOOT/BOOTX64.EFI ` and `/boot/efi/EFI/rocky/grubx64.efi` respectively. 
+We are going to boot the VM via the network using grub.  
+You'll need two things pushed to s3 to make this work: `BOOTX64.EFI` and `grubx64.efi `.  
+These are provided by two packages: `grub2-efi-x64` and `shim-x64`.  
+The locations of these on Rocky8 are in `/boot/efi/EFI/BOOT/BOOTX64.EFI ` and `/boot/efi/EFI/rocky/grubx64.efi` respectively.   
 Once these packages are installed we can push them to s3:
 ```bash
 s3_push --bucket-name efi --key-name BOOTX64.EFI --file-name /boot/efi/EFI/BOOT/BOOTX64.EFI
@@ -71,13 +72,13 @@ s3_push --bucket-name efi --key-name grubx64.efi --file-name /boot/efi/EFI/rocky
 This is just an example setup but you can configure grub however you wish
 
 #### Setup grub.cfg
-We first start with an entry point grub.cfg. This is so we can have multiple VMs if desired
-Make a file called `grub.cfg` with the contents below
+We first start with an entry point grub.cfg. This is so we can have multiple VMs if desired.  
+Make a file called `grub.cfg` with the contents below.  
 ```
 set prefix=(http,10.100.0.1:9000)/efi
 configfile ${prefix}/grub.cfg-${net_default_mac}
 ```
-This will key off of the MAC of the VM
+This will key off of the MAC of the VM.  
 
 #### Choose a MAC address for you VM
 Again, this is up to you but a simple way to do this that was shamelessly stolen from StacOverflow:
@@ -86,9 +87,9 @@ VM_MAC=$(printf '02:00:00:%02X:%02X:%02X\n' $((RANDOM%256)) $((RANDOM%256)) $((R
 ```
 
 #### Configure VM specific grub
-Here we will create a grub.cfg that is specific for the VM. 
-It's name will be based on the MAC address chosen above.
-Make a file called `grub.cfg-$VM_MAC` with contents below:
+Here we will create a grub.cfg that is specific for the VM.  
+It's name will be based on the MAC address chosen above. 
+Make a file called `grub.cfg-$VM_MAC` with contents below: 
 ```bash
 set default="1"
 
@@ -163,11 +164,11 @@ write_files:
 ```
 Just replace `host_pub_key` with the hosts public ssh key
 
-Once cloud-init runs on the VM locally that key will be in place
+Once cloud-init runs on the VM locally that key will be in place.
 
 ### configure libvirt
-The last step before attempting to boot is to configure libvirt
-We will use a custom libvirt network and it to use http network booting
+The last step before attempting to boot is to configure libvirt.  
+We will use a custom libvirt network and it to use http network booting.
 
 #### ENV variables
 Before we begin lets set some things. You can change these to whatever you want:
