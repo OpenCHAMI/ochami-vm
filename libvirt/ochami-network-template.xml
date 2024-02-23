@@ -1,5 +1,5 @@
 <network xmlns:dnsmasq='http://libvirt.org/schemas/network/dnsmasq/1.0' connections='2'>
-  <name>@@@VM_NET_NAME@@@</name>
+  <name>@@@VM_NETWORK@@@</name>
   <forward mode='open'/>
   <bridge name='virbr0' stp='on' delay='0'/>
   <mac address='@@@VM_NET_MAC@@@'/>

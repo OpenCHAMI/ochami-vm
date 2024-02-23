@@ -1,8 +1,8 @@
 <domain type="kvm">
-  <name>ochami-vm</name>
+  <name>@@@VM_NAME@@@</name>
   <uuid>8b78362b-f162-49bc-a674-4e0a09ec6e1a</uuid>
-  <memory>MEMORY</memory>
-  <vcpu>CPUS</vcpu>
+  <memory>@@@VM_MEMORY@@@</memory>
+  <vcpu>@@@VM_CPUS@@@</vcpu>
   <os>
     <type arch="x86_64" machine="q35">hvm</type>
     <loader readonly="yes" type="pflash" secure="yes">/usr/share/OVMF/OVMF_CODE.secboot.fd</loader>
@@ -26,12 +26,12 @@
   <devices>
     <emulator>/usr/libexec/qemu-kvm</emulator>
     <interface type="network">
-      <source network="default"/>
-      <mac address="MAC"/>
+      <source network="@@@VM_NETWORK@@@"/>
+      <mac address="@@@VM_MAC@@@"/>
       <model type="virtio"/>
     </interface>
     <interface type='bridge'>
-      <source bridge="BRIDGE"/>
+      <source bridge="@@@VM_BRIDGE@@@"/>
       <model type="virtio"/>
     </interface>
     <console type="pty"/>
