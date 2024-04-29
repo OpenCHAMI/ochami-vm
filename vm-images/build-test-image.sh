@@ -29,6 +29,9 @@ buildah run $CNAME dnf install -y \
 	containerd.io \
 	nss_db \
 	nfs-utils \
+        openssh-clients \
+        openssh-server \
+        libssh \
 	NetworkManager-initscripts-updown
 
 #Update the initramfs so we can network mount the rootfs
