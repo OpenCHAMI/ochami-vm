@@ -9,17 +9,28 @@ CNAME=$(buildah from scratch)
 MNAME=$(buildah mount $CNAME)
 REPO_DIR="${MNAME}/etc/yum.repos.d"
 
+mkdir -p ${MNAME}/var/log
+mkdir -p ${MNAME}/var/cache/dnf
+
 #Add extra repos here
 dnf config-manager --setopt=reposdir=${REPO_DIR} \
+	--setopt=logdir=${MNAME}/var/log \
+	--setopt=cachedir=${MNAME}/var/cache/dnf \
 	--add-repo https://download.docker.com/linux/centos/docker-ce.repo
 
 dnf config-manager --setopt=reposdir=${REPO_DIR} \
+	--setopt=logdir=${MNAME}/var/log \
+	--setopt=cachedir=${MNAME}/var/cache/dnf \
         --add-repo https://repo.almalinux.org/almalinux/8/BaseOS/x86_64/os
 
 dnf config-manager --setopt=reposdir=${REPO_DIR} \
+	--setopt=logdir=${MNAME}/var/log \
+	--setopt=cachedir=${MNAME}/var/cache/dnf \
         --add-repo https://repo.almalinux.org/almalinux/8/AppStream/x86_64/os
 
 dnf config-manager --setopt=reposdir=${REPO_DIR} \
+	--setopt=logdir=${MNAME}/var/log \
+	--setopt=cachedir=${MNAME}/var/cache/dnf \
         --add-repo https://repo.almalinux.org/almalinux/8/PowerTools/x86_64/os
 
 #Generate machine-id
