@@ -69,7 +69,7 @@ s3-push \
 	--file-name $MNAME/boot/initramfs-$KVER.img
 
 #Now squash up the image and push it to s3
-mksquashfs $MNAME ochami-vm-image.squashfs
+mksquashfs $MNAME ochami-vm-image.squashfs -noappend
 
 s3-push \
 	--bucket-name boot-images \
