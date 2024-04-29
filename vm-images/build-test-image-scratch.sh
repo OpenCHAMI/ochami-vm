@@ -4,20 +4,32 @@
 #You can also start from scratch
 ## MNAME=$(buildah mount $CNAME)
 ## dnf install --installroot=$MNAME <packages>
-CNAME=$(buildah from almalinux:8)
+CNAME=$(buildah from scratch)
 
-# install dnf config-manager
-buildah run $CNAME dnf install -y 'dnf-command(config-manager)'
+MNAME=$(buildah mount $CNAME)
+REPO_DIR="${MNAME}/etc/yum.repos.d"
 
 #Add extra repos here
-buildah run $CNAME dnf config-manager \
+dnf config-manager --setopt=reposdir=${REPO_DIR} \
 	--add-repo https://download.docker.com/linux/centos/docker-ce.repo
 
+dnf config-manager --setopt=reposdir=${REPO_DIR} \
+        --add-repo https://repo.almalinux.org/almalinux/8/BaseOS/x86_64/os
+
+dnf config-manager --setopt=reposdir=${REPO_DIR} \
+        --add-repo https://repo.almalinux.org/almalinux/8/AppStream/x86_64/os
+
+dnf config-manager --setopt=reposdir=${REPO_DIR} \
+        --add-repo https://repo.almalinux.org/almalinux/8/PowerTools/x86_64/os
+
 #Generate machine-id
-buildah run $CNAME bash -c "rm -f /etc/machine-id; dbus-uuidgen --ensure=/etc/machine-id"
+#buildah run $CNAME bash -c "rm -f /etc/machine-id; dbus-uuidgen --ensure=/etc/machine-id"
+
+dnf groupinstall --releasever=8 --nogpgcheck --installroot $MNAME -y \
+	'Minimal Install'
 
 #install packages
-buildah run $CNAME dnf install -y \
+buildah run $CNAME dnf install --nogpgcheck -y \
 	kernel \
 	grub2-efi-x64 \
 	dracut-live \
@@ -28,10 +40,8 @@ buildah run $CNAME dnf install -y \
 	docker-ce-cli \
 	containerd.io \
 	nss_db \
-	nfs-utils \
-        openssh-clients \
-        openssh-server \
-        libssh \
+	openssh-server \
+	openssh-clients \
 	NetworkManager-initscripts-updown
 
 #Update the initramfs so we can network mount the rootfs
@@ -40,7 +50,9 @@ buildah run $CNAME bash -c "dracut \
 	--kver \"\$(basename /lib/modules/*)\" -N -f"
 
 #mount the container so we can push up the image kernel and initramfs
-MNAME=$(buildah mount $CNAME)
+#MNAME=$(buildah mount $CNAME)
+
+buildah run $CNAME bash -c "systemctl disable firewalld"
 
 #get the kernel version
 KVER="$(basename $MNAME/lib/modules/*)"
@@ -57,7 +69,7 @@ s3-push \
 	--file-name $MNAME/boot/initramfs-$KVER.img
 
 #Now squash up the image and push it to s3
-mksquashfs $MNAME ochami-vm-image.squashfs -noappend
+mksquashfs $MNAME ochami-vm-image.squashfs
 
 s3-push \
 	--bucket-name boot-images \
