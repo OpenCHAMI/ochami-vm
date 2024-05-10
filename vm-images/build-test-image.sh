@@ -34,6 +34,12 @@ buildah run $CNAME dnf install -y \
         libssh \
 	NetworkManager-initscripts-updown
 
+# Unmask login service to allow login via console.
+buildah run $CNAME systemctl unmask systemd-logind
+
+# Unmask TTY target so login prompt will appear.
+buildah run $CNAME systemctl unmask getty.target
+
 #Update the initramfs so we can network mount the rootfs
 buildah run $CNAME bash -c "dracut \
 	--add \"dmsquash-live livenet network-manager\" \
