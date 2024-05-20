@@ -4,20 +4,43 @@
 #You can also start from scratch
 ## MNAME=$(buildah mount $CNAME)
 ## dnf install --installroot=$MNAME <packages>
-CNAME=$(buildah from almalinux:8)
+CNAME=$(buildah from scratch)
 
-# install dnf config-manager
-buildah run $CNAME dnf install -y 'dnf-command(config-manager)'
+MNAME=$(buildah mount $CNAME)
+REPO_DIR="${MNAME}/etc/yum.repos.d"
+
+mkdir -p ${MNAME}/var/log
+mkdir -p ${MNAME}/var/cache/dnf
 
 #Add extra repos here
-buildah run $CNAME dnf config-manager \
+dnf config-manager --setopt=reposdir=${REPO_DIR} \
+	--setopt=logdir=${MNAME}/var/log \
+	--setopt=cachedir=${MNAME}/var/cache/dnf \
 	--add-repo https://download.docker.com/linux/centos/docker-ce.repo
 
+dnf config-manager --setopt=reposdir=${REPO_DIR} \
+	--setopt=logdir=${MNAME}/var/log \
+	--setopt=cachedir=${MNAME}/var/cache/dnf \
+        --add-repo https://repo.almalinux.org/almalinux/8/BaseOS/x86_64/os
+
+dnf config-manager --setopt=reposdir=${REPO_DIR} \
+	--setopt=logdir=${MNAME}/var/log \
+	--setopt=cachedir=${MNAME}/var/cache/dnf \
+        --add-repo https://repo.almalinux.org/almalinux/8/AppStream/x86_64/os
+
+dnf config-manager --setopt=reposdir=${REPO_DIR} \
+	--setopt=logdir=${MNAME}/var/log \
+	--setopt=cachedir=${MNAME}/var/cache/dnf \
+        --add-repo https://repo.almalinux.org/almalinux/8/PowerTools/x86_64/os
+
 #Generate machine-id
-buildah run $CNAME bash -c "rm -f /etc/machine-id; dbus-uuidgen --ensure=/etc/machine-id"
+#buildah run $CNAME bash -c "rm -f /etc/machine-id; dbus-uuidgen --ensure=/etc/machine-id"
+
+dnf groupinstall --releasever=8 --nogpgcheck --installroot $MNAME -y \
+	'Minimal Install'
 
 #install packages
-buildah run $CNAME dnf install -y \
+buildah run $CNAME dnf install --nogpgcheck -y \
 	kernel \
 	grub2-efi-x64 \
 	dracut-live \
@@ -28,17 +51,9 @@ buildah run $CNAME dnf install -y \
 	docker-ce-cli \
 	containerd.io \
 	nss_db \
-	nfs-utils \
-        openssh-clients \
-        openssh-server \
-        libssh \
+	openssh-server \
+	openssh-clients \
 	NetworkManager-initscripts-updown
-
-# Unmask login service to allow login via console.
-buildah run $CNAME systemctl unmask systemd-logind
-
-# Unmask TTY target so login prompt will appear.
-buildah run $CNAME systemctl unmask getty.target
 
 #Update the initramfs so we can network mount the rootfs
 buildah run $CNAME bash -c "dracut \
@@ -46,7 +61,9 @@ buildah run $CNAME bash -c "dracut \
 	--kver \"\$(basename /lib/modules/*)\" -N -f"
 
 #mount the container so we can push up the image kernel and initramfs
-MNAME=$(buildah mount $CNAME)
+#MNAME=$(buildah mount $CNAME)
+
+buildah run $CNAME bash -c "systemctl disable firewalld"
 
 #get the kernel version
 KVER="$(basename $MNAME/lib/modules/*)"

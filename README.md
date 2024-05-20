@@ -222,8 +222,8 @@ sed -i "s/@@@VM_NAME@@@/$VM_NAME/g" $VM_CONFIG_FILE
 sed -i "s/@@@VM_MEMORY@@@/$VM_MEMORY/g" $VM_CONFIG_FILE
 sed -i "s/@@@VM_CPUS@@@/$VM_CPUS/g" $VM_CONFIG_FILE
 sed -i "s/@@@VM_NETWORK@@@/$VM_NETWORK/g" $VM_CONFIG_FILE
-sed -i "s/@@@VM_MAC@@@/$VM_MAC/g" $VM_NET_FILE
-sed -i "s/@@@VM_BRIDGE@@@/$VM_BRIDGE/g" $VM_NET_FILE
+sed -i "s/@@@VM_MAC@@@/$VM_MAC/g" $VM_CONFIG_FILE
+sed -i "s/@@@VM_BRIDGE@@@/$VM_BRIDGE/g" $VM_CONFIG_FILE
 ```
 
 Inspect `VM_CONFIG_FILE` and if things look ok then boot the VM:
@@ -239,6 +239,3 @@ You can watch the VM boot with
 virsh console $VM_NAME
 ```
 The escape sequence is `ctl + ]`
-
-## Debugging issues
-TODO
